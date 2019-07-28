@@ -1,0 +1,432 @@
+#
+#  Copyright (c) 2019, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+.NOTPARALLEL:
+
+AR                              = ba-elf-ar
+CCAS                            = $(CCPREFIX) ba-elf-gcc
+CPP                             = ba-elf-cpp
+CC                              = $(CCPREFIX) ba-elf-gcc
+CXX                             = $(CCPREFIX) ba-elf-g++
+LD                              = ba-elf-ld
+STRIP                           = ba-elf-strip
+NM                              = ba-elf-nm
+RANLIB                          = ba-elf-ranlib
+OBJCOPY                         = ba-elf-objcopy
+
+GCCVersion                      = $(shell expr `$(CC) -dumpversion | cut -f1 -d.`)
+
+configure_OPTIONS                                 = \
+    --enable-mtd                                    \
+    --enable-linker-map                             \
+    --with-examples=jn516x                          \
+    MBEDTLS_CPPFLAGS="$(JN516X_MBEDTLS_CPPFLAGS)"   \
+    $(NULL)
+
+ifdef SRC_PATH
+configure_OPTIONS              += --srcdir="$(SRC_PATH)"
+endif
+
+TopSourceDir                    := $(dir $(shell readlink $(firstword $(MAKEFILE_LIST))))..
+AbsTopSourceDir                 := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))..
+
+JN516X_MBEDTLS_CPPFLAGS  = -DMBEDTLS_CONFIG_FILE='\"mbedtls-config.h\"'
+
+JN516X_MBEDTLS_CPPFLAGS += -I$(AbsTopSourceDir)/third_party/mbedtls
+JN516X_MBEDTLS_CPPFLAGS += -I$(AbsTopSourceDir)/third_party/mbedtls/repo/include
+JN516X_MBEDTLS_CPPFLAGS += -I$(AbsTopSourceDir)/third_party/mbedtls/repo/include/mbedtls
+
+JN516X_CONFIG_FILE_CPPFLAGS      = -DOPENTHREAD_PROJECT_CORE_CONFIG_FILE='\"openthread-core-jn516x-config.h\"'
+JN516X_CONFIG_FILE_CPPFLAGS     += -I$(AbsTopSourceDir)/examples/platforms/jn516x/
+
+COMMONCFLAGS                      := \
+    -fdata-sections                  \
+    -ffunction-sections              \
+    -fomit-frame-pointer             \
+    -fshort-enums                    \
+    -Os                              \
+    -g                               \
+    $(JN516X_CONFIG_FILE_CPPFLAGS)   \
+    $(NULL)
+
+include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/common-switches.mk
+
+##############################################################################
+# User definable make parameters that may be overwritten from the command line
+
+
+# Base dir for selected chip
+SDK_BASE_DIR ?= $(AbsTopSourceDir)/third_party/nxp/JN-SW-4163
+
+CHIP_BASE_DIR       = $(SDK_BASE_DIR)/Chip/$(JENNIC_CHIP)
+COMPONENTS_BASE_DIR = $(SDK_BASE_DIR)/Components
+STACK_BASE_DIR      = $(SDK_BASE_DIR)/Stack
+
+DISABLE_LTO ?= 1
+
+ifdef CHIP
+  JENNIC_CHIP = $(CHIP)
+else
+  JENNIC_CHIP ?= JN5168
+endif
+
+JENNIC_STACK = MAC
+JENNIC_MAC = MMAC
+JENNIC_CHIP_FAMILY = JN516x
+
+ifeq ($(JENNIC_CHIP),JN5169)
+  JENNIC_LIB = $(JENNIC_CHIP)
+else
+  JENNIC_LIB = $(JENNIC_CHIP_FAMILY)
+endif
+
+CFLAGS += -DJN516x=5160
+CFLAGS += -D$(JENNIC_CHIP)=$(subst JN,,$(JENNIC_CHIP))
+CFLAGS += -DJENNIC_CHIP_NAME=_$(JENNIC_CHIP)
+CFLAGS += -DJENNIC_CHIP_FAMILY_NAME=_$(JENNIC_CHIP_FAMILY)
+
+###############################################################################
+# Define the selected Jennic chip
+###############################################################################
+
+CFLAGS += -DJENNIC_CHIP=$(JENNIC_CHIP)
+CFLAGS += -DJENNIC_CHIP_$(JENNIC_CHIP)
+CFLAGS += -DJENNIC_CHIP_FAMILY=$(JENNIC_CHIP_FAMILY)
+CFLAGS += -DJENNIC_CHIP_FAMILY_$(JENNIC_CHIP_FAMILY)
+
+CFLAGS += -DJENNIC_STACK_$(JENNIC_STACK)
+CFLAGS += -DJENNIC_MAC_$(JENNIC_MAC)
+
+###############################################################################
+# Chip independent compiler options
+###############################################################################
+
+# Everything needs this
+CFLAGS += -DEMBEDDED
+
+CFLAGS += -I$(COMPONENTS_BASE_DIR)/Aes/Include
+CFLAGS += -I$(COMPONENTS_BASE_DIR)/Common/Include
+CFLAGS += -I$(COMPONENTS_BASE_DIR)/DBG/Include
+CFLAGS += -I$(COMPONENTS_BASE_DIR)/HardwareApi/Include
+CFLAGS += -I$(COMPONENTS_BASE_DIR)/MicroSpecific/Include
+CFLAGS += -I$(COMPONENTS_BASE_DIR)/MMAC/Include
+
+CFLAGS += -Wall
+CFLAGS += -Wunreachable-code
+CFLAGS += -Wno-packed      # enable if can
+CFLAGS += -Wno-cast-align  # enable if can
+
+CFLAGS += -Wmissing-prototypes
+CFLAGS += -Wno-attributes
+CFLAGS += -Wno-unused-parameter
+CFLAGS += -Wno-unused-label
+CFLAGS += -Wno-unused-function
+CFLAGS += -Wno-unused-variable
+CFLAGS += -Wno-variadic-macros
+
+##############################################################################
+
+ifeq ($(TRACE), 1)
+CFLAGS  += -DDBG_ENABLE
+$(info Building trace version ...)
+endif
+
+ifeq ($(DEBUG), HW)
+DISABLE_LTO ?= 1
+# Optimise at level 0 instead of size
+CFLAGS  := $(subst -Os,-O0,$(CFLAGS))
+LDFLAGS  := $(subst -Os,-O0,$(LDFLAGS))
+HARDWARE_DEBUG_ENABLED=1
+endif
+
+ifeq ($(DEBUG), HW_SIZEOPT)
+DISABLE_LTO ?= 1
+HARDWARE_DEBUG_ENABLED=1
+$(info No optimisation enabled with HW debug ...)
+endif
+
+ifeq ($(HARDWARE_DEBUG_ENABLED), 1)
+# Set DEBUG_PORT to UART0 or UART1 dependant on connection to serial port on board
+CFLAGS += -D$(DEBUG_PORT)_DEBUG
+CFLAGS += -DHWDEBUG
+$(info Building HW debug version ...)
+endif
+
+
+ifeq ($(HARDWARE_DEBUG_ENABLED), 1)
+LDFLAGS += -Wl,--defsym,g_bSWConf_Debug=1
+ifeq ($(DEBUG_PORT), UART1)
+LDFLAGS += -Wl,-defsym,g_bSWConf_AltDebugPort=1
+else
+ifneq ($(DEBUG_PORT), UART0)
+$(error if DEBUG=HW: Must define DEBUG_PORT=UART0 or DEBUG_PORT=UART1)
+endif
+endif
+endif
+
+configure_OPTIONS += --with-custom-linker-file=$(AbsTopSourceDir)/examples/platforms/jn516x/$(JENNIC_CHIP).ld
+
+#
+# Select transport which CLI, NCP and RCP examples will use to communicate.
+# To disable all transports use the DISABLE_TRANSPORTS switch. This will disable
+# the build of all above examples.
+# If NCP_SPI switch is set, only NCP and RCP examples will be built.
+# Otherwise, the default serial transport is UART.
+#
+ifndef DISABLE_TRANSPORTS
+configure_OPTIONS              += --enable-ncp
+configure_OPTIONS              += --enable-radio-only
+ifeq ($(NCP_SPI),1)
+COMMONCFLAGS                   += -DSPIS_AS_SERIAL_TRANSPORT=1
+COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_NCP_SPI_ENABLE=1
+else
+COMMONCFLAGS                   += -DUART_AS_SERIAL_TRANSPORT=1
+COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_NCP_UART_ENABLE=1
+configure_OPTIONS              += --enable-cli
+endif # NCP_SPI == 1
+endif # DISABLE_TRANSPORTS
+
+JN516X_MBEDTLS_CPPFLAGS += -DDISABLE_CC310=1
+
+ifeq ($(shell expr $(GCCVersion) \>= 7), 1)
+    COMMONCFLAGS += -Wno-expansion-to-defined
+endif
+
+CPPFLAGS                       += \
+    $(COMMONCFLAGS)               \
+    $(target_CPPFLAGS)            \
+    $(NULL)
+
+CFLAGS                         += \
+    $(COMMONCFLAGS)               \
+    $(target_CFLAGS)              \
+    $(NULL)
+
+CXXFLAGS                       += \
+    $(COMMONCFLAGS)               \
+    $(target_CXXFLAGS)            \
+    -fno-exceptions               \
+    -fno-rtti                     \
+    $(NULL)
+
+LDFLAGS                        += \
+    $(COMMONCFLAGS)               \
+    $(target_LDFLAGS)             \
+    -Wl,--gc-sections             \
+    -Wl,-u_AppColdStart           \
+    -Wl,-u_AppWarmStart           \
+    -L$(AbsTopSourceDir)/examples/platforms/jn516x/ \
+    -L$(CHIP_BASE_DIR)/Build/                       \
+    -L$(STACK_BASE_DIR)/$(JENNIC_STACK)/Build       \
+    -L$(COMPONENTS_BASE_DIR)/Library/               \
+    $(NULL)
+
+
+CCASFLAGS                       += \
+    $(COMMONCCASFLAGS)             \
+    $(target_CCASFLAGS)            \
+    -x                             \
+    assembler-with-cpp             \
+    $(NULL)
+
+LIBS                            += \
+    -lHardwareApi_$(JENNIC_LIB)    \
+    -lMMAC_$(JENNIC_LIB)           \
+    -lAes_JN516x                   \
+    -lMicroSpecific_JN516x         \
+    -lBoot_JN516x                  \
+    -lDBG_JN516x                   \
+    -lJPT_$(JENNIC_CHIP)
+
+ECHO                            := @echo
+MAKE                            := make
+MKDIR_P                         := mkdir -p
+LN_S                            := ln -s
+RM_F                            := rm -f
+
+INSTALL                         := /usr/bin/install
+INSTALLFLAGS                    := -p
+
+BuildPath                       = build
+TopBuildDir                     = $(BuildPath)
+AbsTopBuildDir                  = $(PWD)/$(TopBuildDir)
+
+ResultPath                      = output
+TopResultDir                    = $(ResultPath)
+AbsTopResultDir                 = $(PWD)/$(TopResultDir)
+
+TargetTuple                     = jn516x
+
+ARCHS                           = ba2
+
+TopTargetLibDir                 = $(TopResultDir)/$(TargetTuple)/lib
+
+ifndef BuildJobs
+BuildJobs := $(shell getconf _NPROCESSORS_ONLN)
+endif
+JOBSFLAG := -j$(BuildJobs)
+
+#
+# configure-arch <arch>
+#
+# Configure OpenThread for the specified architecture.
+#
+#   arch - The architecture to configure.
+#
+define configure-arch
+$(ECHO) "  CONFIG   $(TargetTuple)..."
+(cd $(BuildPath)/$(TargetTuple) && $(AbsTopSourceDir)/configure \
+INSTALL="$(INSTALL) $(INSTALLFLAGS)" \
+CPP="$(CPP)" CC="$(CC)" CXX="$(CXX)" CCAS="$(CCAS)" OBJC="$(OBJC)" OBJCXX="$(OBJCXX)" AR="$(AR)" RANLIB="$(RANLIB)" NM="$(NM)" STRIP="$(STRIP)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" CCASFLAGS="$(CCASFLAGS)" LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" \
+--host=ba-elf \
+--prefix=/ \
+--exec-prefix=/$(TargetTuple) \
+$(configure_OPTIONS))
+endef # configure-arch
+
+#
+# build-arch <arch>
+#
+# Build the OpenThread intermediate build products for the specified
+# architecture.
+#
+#   arch - The architecture to build.
+#
+define build-arch
+$(ECHO) "  BUILD    $(TargetTuple)"
+$(MAKE) $(JOBSFLAG) -C $(BuildPath)/$(TargetTuple) --no-print-directory \
+all
+endef # build-arch
+
+#
+# stage-arch <arch>
+#
+# Stage (install) the OpenThread final build products for the specified
+# architecture.
+#
+#   arch - The architecture to stage.
+#
+define stage-arch
+$(ECHO) "  STAGE    $(TargetTuple)"
+$(MAKE) $(JOBSFLAG) -C $(BuildPath)/$(TargetTuple) --no-print-directory \
+DESTDIR=$(AbsTopResultDir) \
+install
+endef # stage-arch
+
+#
+# ARCH_template <arch>
+#
+# Define macros, targets and rules to configure, build, and stage the
+# OpenThread for a single architecture.
+#
+#   arch - The architecture to instantiate the template for.
+#
+define ARCH_template
+CONFIGURE_TARGETS += configure-$(1)
+BUILD_TARGETS     += do-build-$(1)
+STAGE_TARGETS     += stage-$(1)
+BUILD_DIRS        += $(BuildPath)/$(TargetTuple)
+DIRECTORIES       += $(BuildPath)/$(TargetTuple)
+
+configure-$(1): target_CPPFLAGS=$($(1)_target_CPPFLAGS)
+configure-$(1): target_CFLAGS=$($(1)_target_CFLAGS)
+configure-$(1): target_CXXFLAGS=$($(1)_target_CXXFLAGS)
+configure-$(1): target_LDFLAGS=$($(1)_target_LDFLAGS)
+configure-$(1): target_CCASFLAGS=$($(1)_target_CCASFLAGS)
+
+configure-$(1): $(BuildPath)/$(TargetTuple)/config.status
+
+$(BuildPath)/$(TargetTuple)/config.status: | $(BuildPath)/$(TargetTuple)
+	$$(call configure-arch,$(1))
+
+do-build-$(1): configure-$(1)
+
+do-build-$(1):
+	+$$(call build-arch,$(1))
+
+stage-$(1): do-build-$(1)
+
+stage-$(1): | $(TopResultDir)
+	$$(call stage-arch,$(1))
+
+$(1): stage-$(1)
+endef # ARCH_template
+
+.DEFAULT_GOAL := all
+
+all: stage
+
+#
+# ba2
+#
+
+ba2_target_ABI                  = ba2
+ba2_target_CPPFLAGS             = -march=ba2 -mcpu=jn51xx -mredzone-size=4 -mbranch-cost=3
+ba2_target_CFLAGS               = -march=ba2 -mcpu=jn51xx -mredzone-size=4 -mbranch-cost=3
+ba2_target_CXXFLAGS             = -march=ba2 -mcpu=jn51xx -mredzone-size=4 -mbranch-cost=3
+ba2_target_LDFLAGS              = -march=ba2 -mcpu=jn51xx -mredzone-size=4 -mbranch-cost=3
+
+# Instantiate an architecture-specific build template for each target
+# architecture.
+
+$(foreach arch,$(ARCHS),$(eval $(call ARCH_template,$(arch))))
+
+#
+# Common / Finalization
+#
+
+configure: $(CONFIGURE_TARGETS)
+
+build: $(BUILD_TARGETS)
+
+stage: $(STAGE_TARGETS)
+
+DIRECTORIES     = $(TopResultDir) $(TopResultDir)/$(TargetTuple)/lib $(BUILD_DIRS)
+
+CLEAN_DIRS      = $(TopResultDir) $(BUILD_DIRS)
+
+all: stage
+
+$(DIRECTORIES):
+	$(ECHO) "  MKDIR    $@"
+	@$(MKDIR_P) "$@"
+
+clean:
+	$(ECHO) "  CLEAN"
+	@$(RM_F) -r $(CLEAN_DIRS)
+
+help:
+	$(ECHO) "Simply type 'make -f $(firstword $(MAKEFILE_LIST))' to build OpenThread for the following "
+	$(ECHO) "architectures: "
+	$(ECHO) ""
+	$(ECHO) "    $(ARCHS)"
+	$(ECHO) ""
+	$(ECHO) "To build only a particular architecture, specify: "
+	$(ECHO) ""
+	$(ECHO) "    make -f $(firstword $(MAKEFILE_LIST)) <architecture>"
+	$(ECHO) ""

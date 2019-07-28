@@ -782,12 +782,12 @@ AM_CONDITIONAL([OPENTHREAD_ENABLE_CUSTOM_LINKER_FILE], [test "${with_custom_link
 
 AC_ARG_WITH(examples,
     [AS_HELP_STRING([--with-examples=TARGET],
-        [Specify the examples from one of: none, posix, cc1352, cc2538, cc2650, cc2652, efr32mg12, efr32mg21, gp712, kw41z, nrf52811, nrf52840, qpg6095, samr21 @<:@default=none@:>@.])],
+        [Specify the examples from one of: none, posix, cc1352, cc2538, cc2650, cc2652, efr32mg12, efr32mg21, gp712, jn516x, kw41z, nrf52811, nrf52840, qpg6095, samr21 @<:@default=none@:>@.])],
     [
         case "${with_examples}" in
         none)
             ;;
-        posix|cc1352|cc2538|cc2650|cc2652|efr32mg12|efr32mg21|gp712|kw41z|nrf52811|nrf52840|qpg6095|samr21)
+        posix|cc1352|cc2538|cc2650|cc2652|efr32mg12|efr32mg21|gp712|jn516x|kw41z|nrf52811|nrf52840|qpg6095|samr21)
             if test ${enable_posix_app} = "yes"; then
                 AC_MSG_ERROR([--with-examples must be none when POSIX apps are enabled by --enable-posix-app])
             fi
@@ -809,6 +809,7 @@ AM_CONDITIONAL([OPENTHREAD_EXAMPLES_CC2652],    [test "${with_examples}" = "cc26
 AM_CONDITIONAL([OPENTHREAD_EXAMPLES_EFR32MG12], [test "${with_examples}" = "efr32mg12"])
 AM_CONDITIONAL([OPENTHREAD_EXAMPLES_EFR32MG21], [test "${with_examples}" = "efr32mg21"])
 AM_CONDITIONAL([OPENTHREAD_EXAMPLES_GP712],     [test "${with_examples}" = "gp712"])
+AM_CONDITIONAL([OPENTHREAD_EXAMPLES_JN516X],    [test "${with_examples}" = "jn516x"])
 AM_CONDITIONAL([OPENTHREAD_EXAMPLES_KW41Z],     [test "${with_examples}" = "kw41z"])
 AM_CONDITIONAL([OPENTHREAD_EXAMPLES_NRF52811],  [test "${with_examples}" = "nrf52811"])
 AM_CONDITIONAL([OPENTHREAD_EXAMPLES_NRF52840],  [test "${with_examples}" = "nrf52840"])
@@ -979,6 +980,7 @@ examples/platforms/efr32mg21/sleepy-demo/Makefile
 examples/platforms/efr32mg21/sleepy-demo/sleepy-demo-ftd/Makefile
 examples/platforms/efr32mg21/sleepy-demo/sleepy-demo-mtd/Makefile
 examples/platforms/gp712/Makefile
+examples/platforms/jn516x/Makefile
 examples/platforms/kw41z/Makefile
 examples/platforms/nrf528xx/Makefile
 examples/platforms/qpg6095/Makefile

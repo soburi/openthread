@@ -313,6 +313,9 @@ case $basic_machine in
 	| z8k | z80)
 		basic_machine=$basic_machine-unknown
 		;;
+	ba)
+		basic_machine=ba-unknown
+		;;
 	c54x)
 		basic_machine=tic54x-unknown
 		;;

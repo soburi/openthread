@@ -38,6 +38,7 @@ DIST_SUBDIRS                            = \
     efr32mg12                             \
     efr32mg21                             \
     gp712                                 \
+    jn516x                                \
     kw41z                                 \
     nrf528xx                              \
     posix                                 \
@@ -80,6 +81,10 @@ if OPENTHREAD_EXAMPLES_GP712
 SUBDIRS                                += gp712
 endif
 
+if OPENTHREAD_EXAMPLES_JN516X
+SUBDIRS                                += jn516x
+endif
+
 if OPENTHREAD_EXAMPLES_KW41Z
 SUBDIRS                                += kw41z
 endif
@@ -114,6 +119,7 @@ PRETTY_SUBDIRS                          = \
     efr32mg12                             \
     efr32mg21                             \
     gp712                                 \
+    jn516x                                \
     kw41z                                 \
     nrf528xx                              \
     posix                                 \
