@@ -37,26 +37,89 @@
 #include <openthread/platform/alarm-milli.h>
 #include <openthread/platform/logging.h>
 
+#include <utils/code_utils.h>
+
+#include <dbg_uart.h>
+
+#include "platform-config.h"
 #include "platform-jn516x.h"
 
-//#include <utils/logging_rtt.h>
+#ifndef LOG_PARSE_BUFFER_SIZE
+#define LOG_PARSE_BUFFER_SIZE 128
+#endif
+
+static bool    sLogInitialized = false;
+
+static const char* REGION_NAME[] = {
+    "        ",
+    "     API",
+    "     MLE",
+    "     ARP",
+    "NET_DATA",
+    "    ICMP",
+    "     IP6",
+    "     MAC",
+    "     MEM",
+    "     NCP",
+    "MESH_COP",
+    "NET_DIAG",
+    "PLATFORM",
+    "    COAP",
+    "     CLI",
+    "    CORE",
+    "    UTIL",
+};
 
 #if (OPENTHREAD_CONFIG_LOG_OUTPUT == OPENTHREAD_CONFIG_LOG_OUTPUT_PLATFORM_DEFINED) || \
     (OPENTHREAD_CONFIG_LOG_OUTPUT == OPENTHREAD_CONFIG_LOG_OUTPUT_NCP_SPINEL)
 void jn516xLogInit(void)
 {
-    //utilsLogRttInit();
+    DBG_vUartInit(DEBUG_UART, DEBUG_BAUD);
+    sLogInitialized = true;
 }
 
 void jn516xLogDeinit(void)
 {
     //utilsLogRttDeinit();
+    sLogInitialized = false;
 }
 
 OT_TOOL_WEAK void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aFormat, ...)
 {
-    (void)aLogLevel;
-    (void)aLogRegion;
-    (void)aFormat;
+    va_list ap;
+
+    va_start(ap, aFormat);
+
+    uint16_t length = 0;
+    int      charsWritten;
+    char     logString[LOG_PARSE_BUFFER_SIZE + 1];
+
+    otEXPECT(sLogInitialized == true);
+    otEXPECT(aLogRegion < sizeof(REGION_NAME));
+
+    charsWritten = vsnprintf(&logString[length], (size_t)(LOG_PARSE_BUFFER_SIZE - length), aFormat, ap);
+    otEXPECT(charsWritten >= 0);
+    length += charsWritten;
+
+    if (length > LOG_PARSE_BUFFER_SIZE)
+    {
+        length = LOG_PARSE_BUFFER_SIZE;
+    }
+
+    logString[length++] = '\0';
+
+//#if (LOG_REGION_ENABLE == 1)
+    DBG_vPrintf(1, "%s", REGION_NAME[aLogRegion]);
+//#endif
+//#if (LOG_TIMESTAMP_ENABLE == 1)
+    DBG_vPrintf(1, "[%010lu] ", otPlatAlarmMilliGetNow() );
+//#endif
+    DBG_vPrintf(1, "%s\n", logString);
+
+exit:
+    va_end(ap);
+    return;
 }
 #endif
+
+
