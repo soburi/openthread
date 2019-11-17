@@ -264,6 +264,8 @@ void otPlatRadioSetShortAddress(otInstance *aInstance, uint16_t aShortAddress)
 {
 	(void)aInstance;
 	(void)aShortAddress;
+}
+
 void jn516xRadioInit(void)
 {
     dataInit();
@@ -464,6 +466,8 @@ otError otPlatRadioSetCcaEnergyDetectThreshold(otInstance *aInstance, int8_t aTh
 
 void jn516xRadioProcess(otInstance *aInstance)
 {
+}
+
 static void jn516x_802154_received_timestamp_raw(volatile jn516xPhyFrame *phyframe, int8_t power, uint8_t lqi, uint32_t time)
 {
     volatile otRadioFrame *receivedFrame = &(phyframe->ot);
