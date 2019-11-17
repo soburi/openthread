@@ -137,43 +137,39 @@ static void radio_interrupt_handler(uint32_t event);
 static void jn516x_frame_free(uint8_t *frametofree);
 
 
+#define ARRAYSIZE(a) ((int)(sizeof(a) / sizeof(*(a))))
 
 static int recvframe_count() {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     if(sReceivedFrames.head >= sReceivedFrames.tail) {
-        return   (sizeof(sReceivedFrames.buffer-sReceivedFrames.head) +
-                  sizeof(sReceivedFrames.tail-sReceivedFrames.buffer) )
-		/ sizeof(tsPhyFrame*);
+        return    (sReceivedFrames.head - sReceivedFrames.buffer)
+	        - (sReceivedFrames.tail - sReceivedFrames.buffer);
     }
-        return   (sizeof(sReceivedFrames.buffer-sReceivedFrames.tail) +
-                  sizeof(sReceivedFrames.head-sReceivedFrames.buffer) )
-		/ sizeof(tsPhyFrame*);
+        return    ARRAYSIZE(sReceivedFrames.buffer)
+		- (sReceivedFrames.tail - sReceivedFrames.buffer)
+	        + (sReceivedFrames.head - sReceivedFrames.buffer);
 }
 
 static volatile jn516xPhyFrame* recvframe_pop() {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     if(recvframe_count() == 0) return NULL;
 
     sReceivedFrames.tail++;
-    if(sReceivedFrames.tail > (sReceivedFrames.buffer+(sizeof(sReceivedFrames.buffer)/sizeof(jn516xPhyFrame)) ) ) {
-        sReceivedFrames.tail -= (sizeof(sReceivedFrames.buffer)/sizeof(jn516xPhyFrame));
+    if((sReceivedFrames.tail - sReceivedFrames.buffer) >= ARRAYSIZE(sReceivedFrames.buffer)) {
+        sReceivedFrames.tail = sReceivedFrames.buffer;
     }
     return sReceivedFrames.tail;
 }
 
 static volatile jn516xPhyFrame* recvframe_next() {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
-    if(recvframe_count() == (sizeof(sReceivedFrames.buffer)/sizeof(jn516xPhyFrame)) ) return NULL;
+    if(recvframe_count() == ARRAYSIZE(sReceivedFrames.buffer)-1) return NULL;
 
     sReceivedFrames.head++;
-    if(sReceivedFrames.head >= (sReceivedFrames.buffer+(sizeof(sReceivedFrames.buffer)/sizeof(jn516xPhyFrame)) ) ) {
-        sReceivedFrames.tail -= (sizeof(sReceivedFrames.buffer)/sizeof(jn516xPhyFrame));
+    if((sReceivedFrames.head - sReceivedFrames.buffer) >= ARRAYSIZE(sReceivedFrames.buffer)) {
+        sReceivedFrames.head = sReceivedFrames.buffer;
     }
     return sReceivedFrames.head;
 }
 
 static volatile jn516xPhyFrame* recvframe_head() {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     return sReceivedFrames.head;
 }
 
@@ -217,7 +213,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 
 static inline bool isPendingEventSet(RadioPendingEvents aEvent)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     return sPendingEvents & (1UL << aEvent);
 }
 
@@ -254,30 +249,41 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64)
 {
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
-	(void)aInstance;
-	(void)aIeeeEui64;
+    OT_UNUSED_VARIABLE(aInstance);
+    tsExtAddr extAddr = {0};
+    vMMAC_GetMacAddress(&extAddr);
+
+    memcpy(&extAddr, aIeeeEui64, sizeof(tsExtAddr) );
 }
 #endif // OPENTHREAD_CONFIG_ENABLE_PLATFORM_EUI64_CUSTOM_SOURCE
 
 void otPlatRadioSetPanId(otInstance *aInstance, uint16_t aPanId)
 {
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
-	(void)aInstance;
-	(void)aPanId;
+    OT_UNUSED_VARIABLE(aInstance);
+
+    sCurrentPanId = aPanId;
+
+    vMMAC_SetRxAddress(sCurrentPanId, sCurrentShortAddress, (tsExtAddr*)&sCurrentExtendedAddress);
 }
 
 void otPlatRadioSetExtendedAddress(otInstance *aInstance, const otExtAddress *aExtAddress)
 {
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
-	(void)aInstance;
-	(void)aExtAddress;
+    OT_UNUSED_VARIABLE(aInstance);
+
+    memcpy(&sCurrentExtendedAddress, aExtAddress, sizeof(otExtAddress));
+    vMMAC_SetRxAddress(sCurrentPanId, sCurrentShortAddress, (tsExtAddr*)&sCurrentExtendedAddress);
 }
 
 void otPlatRadioSetShortAddress(otInstance *aInstance, uint16_t aShortAddress)
 {
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
-	(void)aInstance;
-	(void)aShortAddress;
+    OT_UNUSED_VARIABLE(aInstance);
+
+    sCurrentShortAddress = aShortAddress;
+
+    vMMAC_SetRxAddress(sCurrentPanId, sCurrentShortAddress, (tsExtAddr*)&sCurrentExtendedAddress);
 }
 
 void jn516xRadioInit(void)
@@ -332,38 +338,89 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 otError otPlatRadioEnable(otInstance *aInstance)
 {
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
-	(void)aInstance;
-	return 0;
+    otError error;
+
+#if !OPENTHREAD_CONFIG_MAC_HEADER_IE_SUPPORT
+    OT_UNUSED_VARIABLE(aInstance);
+#else
+    sInstance = aInstance;
+#endif
+
+    if (sDisabled)
+    {
+        sDisabled = false;
+        error     = OT_ERROR_NONE;
+    }
+    else
+    {
+        error = OT_ERROR_INVALID_STATE;
+    }
+
+    return error;
 }
 
 otError otPlatRadioDisable(otInstance *aInstance)
 {
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
-	(void)aInstance;
-	return 0;
+    otError error = OT_ERROR_NONE;
+
+    otEXPECT(otPlatRadioIsEnabled(aInstance));
+    otEXPECT_ACTION(otPlatRadioGetState(aInstance) == OT_RADIO_STATE_SLEEP || isPendingEventSet(kPendingEventSleep),
+                    error = OT_ERROR_INVALID_STATE);
+
+    sDisabled = true;
+
+exit:
+    return error;
 }
 
 otError otPlatRadioSleep(otInstance *aInstance)
 {
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
-	(void)aInstance;
-	return 0;
+    OT_UNUSED_VARIABLE(aInstance);
+    vMMAC_RadioOff();
+    clearPendingEvents();
+
+    sRadioState = OT_RADIO_STATE_SLEEP;
+    return OT_ERROR_NONE;
 }
 
 otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel)
 {
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
-	(void)aInstance;
-	(void)aChannel;
-	return 0;
+    OT_UNUSED_VARIABLE(aInstance);
+
+    sCurrentChannel = aChannel;
+    vMMAC_SetChannelAndPower(sCurrentChannel, sDefaultTxPower);
+
+    vMMAC_StartPhyReceive((tsPhyFrame*)(&recvframe_head()->phy),
+		    (E_MMAC_RX_START_NOW | E_MMAC_RX_NO_FCS_ERROR) ); /* means: reject FCS errors */
+
+    clearPendingEvents();
+
+    sRadioState = OT_RADIO_STATE_RECEIVE;
+    return 0;
 }
 
 otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame)
 {
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
-	(void)aInstance;
-	(void)aFrame;
-	return 0;
+    memcpy(sTransmitPsdu.uPayload.au8Byte, aFrame->mPsdu, aFrame->mLength);
+    sTransmitPsdu.u8PayloadLength = aFrame->mLength;
+
+    sCurrentChannel = aFrame->mChannel;
+    vMMAC_SetChannelAndPower(sCurrentChannel, sDefaultTxPower);
+
+    setPendingEvent(kPendingEventChannelAccessFailure);
+    sRadioState = OT_RADIO_STATE_RECEIVE;
+
+    vMMAC_StartPhyTransmit(&sTransmitPsdu, E_MMAC_TX_START_NOW | E_MMAC_TX_USE_CCA);
+
+    clearPendingEvents();
+    otPlatRadioTxStarted(aInstance, aFrame);
+
+    sRadioState = OT_RADIO_STATE_TRANSMIT;
+    return OT_ERROR_NONE;
 }
 
 otRadioFrame *otPlatRadioGetTransmitBuffer(otInstance *aInstance)
@@ -379,7 +436,7 @@ int8_t otPlatRadioGetRssi(otInstance *aInstance)
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
-    return 0;
+    return ED2DBM(u8MMAC_EnergyDetect(sCurrentChannel));
 }
 
 otRadioCaps otPlatRadioGetCaps(otInstance *aInstance)
@@ -387,7 +444,7 @@ otRadioCaps otPlatRadioGetCaps(otInstance *aInstance)
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
-    return (otRadioCaps)(0);
+    return OT_RADIO_CAPS_ENERGY_SCAN;
 }
 
 bool otPlatRadioGetPromiscuous(otInstance *aInstance)
@@ -472,9 +529,19 @@ otError otPlatRadioGetTransmitPower(otInstance *aInstance, int8_t *aPower)
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
-    OT_UNUSED_VARIABLE(aPower);
+    otError error = OT_ERROR_NONE;
 
-    return 0;
+    if (aPower == NULL)
+    {
+        error = OT_ERROR_INVALID_ARGS;
+    }
+    else
+    {
+	sDefaultTxPower = i8MMAC_GetTxPowerLevel();
+        *aPower = sDefaultTxPower;
+    }
+
+    return error;
 }
 
 otError otPlatRadioSetTransmitPower(otInstance *aInstance, int8_t aPower)
@@ -483,7 +550,7 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     sDefaultTxPower = aPower;
-    OT_UNUSED_VARIABLE(aPower);
+    vMMAC_SetChannelAndPower(sCurrentChannel, sDefaultTxPower);
 
     return OT_ERROR_NONE;
 }
@@ -506,10 +573,117 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 
 void jn516xRadioProcess(otInstance *aInstance)
 {
+    bool isEventPending = false;
+
+    while (recvframe_count() > 0)
+    {
+        jn516xPhyFrame* recvframe = (jn516xPhyFrame*)recvframe_pop();
+        if (recvframe != NULL)
+        {
+#if OPENTHREAD_CONFIG_DIAG_ENABLE
+
+            if (otPlatDiagModeGet())
+            {
+                otPlatDiagRadioReceiveDone(aInstance, &recvframe->ot, OT_ERROR_NONE);
+            }
+            else
+#endif
+            {
+                otPlatRadioReceiveDone(aInstance, &recvframe->ot, OT_ERROR_NONE);
+            }
+        }
+    }
+
+    if (isPendingEventSet(kPendingEventFrameTransmitted))
+    {
+        resetPendingEvent(kPendingEventFrameTransmitted);
+
+#if OPENTHREAD_CONFIG_DIAG_ENABLE
+
+        if (otPlatDiagModeGet())
+        {
+            otPlatDiagRadioTransmitDone(aInstance, &sTransmitFrame, OT_ERROR_NONE);
+        }
+        else
+#endif
+        {
+            otRadioFrame *ackPtr = (sAckFrame.mPsdu == NULL) ? NULL : &sAckFrame;
+            otPlatRadioTxDone(aInstance, &sTransmitFrame, ackPtr, OT_ERROR_NONE);
+        }
+
+        if (sAckFrame.mPsdu != NULL)
+        {
+            sAckFrame.mPsdu = NULL;
+        }
+    }
+
+    if (isPendingEventSet(kPendingEventChannelAccessFailure))
+    {
+        resetPendingEvent(kPendingEventChannelAccessFailure);
+
+#if OPENTHREAD_CONFIG_DIAG_ENABLE
+
+        if (otPlatDiagModeGet())
+        {
+            otPlatDiagRadioTransmitDone(aInstance, &sTransmitFrame, OT_ERROR_CHANNEL_ACCESS_FAILURE);
+        }
+        else
+#endif
+        {
+            otPlatRadioTxDone(aInstance, &sTransmitFrame, NULL, OT_ERROR_CHANNEL_ACCESS_FAILURE);
+        }
+    }
+
+    if (isPendingEventSet(kPendingEventInvalidOrNoAck))
+    {
+        resetPendingEvent(kPendingEventInvalidOrNoAck);
+
+#if OPENTHREAD_CONFIG_DIAG_ENABLE
+
+        if (otPlatDiagModeGet())
+        {
+            otPlatDiagRadioTransmitDone(aInstance, &sTransmitFrame, OT_ERROR_NO_ACK);
+        }
+        else
+#endif
+        {
+            otPlatRadioTxDone(aInstance, &sTransmitFrame, NULL, OT_ERROR_NO_ACK);
+        }
+    }
+
+    if (isPendingEventSet(kPendingEventReceiveFailed))
+    {
+        resetPendingEvent(kPendingEventReceiveFailed);
+
+#if OPENTHREAD_CONFIG_DIAG_ENABLE
+
+        if (otPlatDiagModeGet())
+        {
+            otPlatDiagRadioReceiveDone(aInstance, NULL, sReceiveError);
+        }
+        else
+#endif
+        {
+            otPlatRadioReceiveDone(aInstance, NULL, sReceiveError);
+        }
+    }
+
+    if (isPendingEventSet(kPendingEventEnergyDetected))
+    {
+        resetPendingEvent(kPendingEventEnergyDetected);
+
+        otPlatRadioEnergyScanDone(aInstance, sEnergyDetected);
+    }
+
+    if (isEventPending)
+    {
+        otSysEventSignalPending();
+    }
 }
 
 static void jn516x_802154_received_timestamp_raw(volatile jn516xPhyFrame *phyframe, int8_t power, uint8_t lqi, uint32_t time)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     volatile otRadioFrame *receivedFrame = &(phyframe->ot);
 
     receivedFrame->mPsdu               = (uint8_t*)phyframe->phy.uPayload.au8Byte;
