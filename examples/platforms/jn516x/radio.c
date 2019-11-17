@@ -139,6 +139,7 @@ static void jn516x_frame_free(uint8_t *frametofree);
 
 
 static int recvframe_count() {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     if(sReceivedFrames.head >= sReceivedFrames.tail) {
         return   (sizeof(sReceivedFrames.buffer-sReceivedFrames.head) +
                   sizeof(sReceivedFrames.tail-sReceivedFrames.buffer) )
@@ -150,6 +151,7 @@ static int recvframe_count() {
 }
 
 static volatile jn516xPhyFrame* recvframe_pop() {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     if(recvframe_count() == 0) return NULL;
 
     sReceivedFrames.tail++;
@@ -160,6 +162,7 @@ static volatile jn516xPhyFrame* recvframe_pop() {
 }
 
 static volatile jn516xPhyFrame* recvframe_next() {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     if(recvframe_count() == (sizeof(sReceivedFrames.buffer)/sizeof(jn516xPhyFrame)) ) return NULL;
 
     sReceivedFrames.head++;
@@ -170,6 +173,7 @@ static volatile jn516xPhyFrame* recvframe_next() {
 }
 
 static volatile jn516xPhyFrame* recvframe_head() {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     return sReceivedFrames.head;
 }
 
@@ -188,6 +192,7 @@ static volatile uint32_t sPendingEvents;
 
 static void dataInit(void)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     sDisabled = true;
 
     sTransmitFrame.mPsdu = sTransmitPsdu.uPayload.au8Byte;
@@ -205,17 +210,20 @@ static void dataInit(void)
 
 static void convertShortAddress(uint8_t *aTo, uint16_t aFrom)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     aTo[0] = (uint8_t)aFrom;
     aTo[1] = (uint8_t)(aFrom >> 8);
 }
 
 static inline bool isPendingEventSet(RadioPendingEvents aEvent)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     return sPendingEvents & (1UL << aEvent);
 }
 
 static void setPendingEvent(RadioPendingEvents aEvent)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     uint32_t          bitToSet = 1UL << aEvent;
 
     sPendingEvents |= bitToSet;
@@ -225,6 +233,7 @@ static void setPendingEvent(RadioPendingEvents aEvent)
 
 static void resetPendingEvent(RadioPendingEvents aEvent)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     uint32_t          bitsToRemain = ~(1UL << aEvent);
 
     sPendingEvents &= bitsToRemain;
@@ -232,6 +241,7 @@ static void resetPendingEvent(RadioPendingEvents aEvent)
 
 static inline void clearPendingEvents(void)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     // Clear pending events that could cause race in the MAC layer.
     uint32_t          bitsToRemain = ~(0UL);
 
@@ -243,6 +253,7 @@ static inline void clearPendingEvents(void)
 #if !OPENTHREAD_CONFIG_ENABLE_PLATFORM_EUI64_CUSTOM_SOURCE
 void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 	(void)aInstance;
 	(void)aIeeeEui64;
 }
@@ -250,24 +261,28 @@ void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64)
 
 void otPlatRadioSetPanId(otInstance *aInstance, uint16_t aPanId)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 	(void)aInstance;
 	(void)aPanId;
 }
 
 void otPlatRadioSetExtendedAddress(otInstance *aInstance, const otExtAddress *aExtAddress)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 	(void)aInstance;
 	(void)aExtAddress;
 }
 
 void otPlatRadioSetShortAddress(otInstance *aInstance, uint16_t aShortAddress)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 	(void)aInstance;
 	(void)aShortAddress;
 }
 
 void jn516xRadioInit(void)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     dataInit();
     vMMAC_Enable();
     vMMAC_ConfigureInterruptSources(E_MMAC_INT_RX_COMPLETE | E_MMAC_INT_TX_COMPLETE);
@@ -286,6 +301,7 @@ void jn516xRadioInit(void)
 
 void jn516xRadioDeinit(void)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     vMMAC_RadioOff();
     sRadioState = OT_RADIO_STATE_SLEEP;
     sPendingEvents = 0;
@@ -293,6 +309,7 @@ void jn516xRadioDeinit(void)
 
 otRadioState otPlatRadioGetState(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     if (sDisabled)
@@ -306,6 +323,7 @@ otRadioState otPlatRadioGetState(otInstance *aInstance)
 
 bool otPlatRadioIsEnabled(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     return !sDisabled;
@@ -313,24 +331,28 @@ bool otPlatRadioIsEnabled(otInstance *aInstance)
 
 otError otPlatRadioEnable(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 	(void)aInstance;
 	return 0;
 }
 
 otError otPlatRadioDisable(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 	(void)aInstance;
 	return 0;
 }
 
 otError otPlatRadioSleep(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 	(void)aInstance;
 	return 0;
 }
 
 otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 	(void)aInstance;
 	(void)aChannel;
 	return 0;
@@ -338,6 +360,7 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel)
 
 otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 	(void)aInstance;
 	(void)aFrame;
 	return 0;
@@ -345,6 +368,7 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame)
 
 otRadioFrame *otPlatRadioGetTransmitBuffer(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     return &sTransmitFrame;
@@ -352,6 +376,7 @@ otRadioFrame *otPlatRadioGetTransmitBuffer(otInstance *aInstance)
 
 int8_t otPlatRadioGetRssi(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     return 0;
@@ -359,6 +384,7 @@ int8_t otPlatRadioGetRssi(otInstance *aInstance)
 
 otRadioCaps otPlatRadioGetCaps(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     return (otRadioCaps)(0);
@@ -366,6 +392,7 @@ otRadioCaps otPlatRadioGetCaps(otInstance *aInstance)
 
 bool otPlatRadioGetPromiscuous(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     return sPromiscuous;
@@ -373,6 +400,7 @@ bool otPlatRadioGetPromiscuous(otInstance *aInstance)
 
 void otPlatRadioSetPromiscuous(otInstance *aInstance, bool aEnable)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     sPromiscuous = aEnable;
@@ -380,12 +408,14 @@ void otPlatRadioSetPromiscuous(otInstance *aInstance, bool aEnable)
 
 void otPlatRadioEnableSrcMatch(otInstance *aInstance, bool aEnable)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
     OT_UNUSED_VARIABLE(aEnable);
 }
 
 otError otPlatRadioAddSrcMatchShortEntry(otInstance *aInstance, const uint16_t aShortAddress)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
     OT_UNUSED_VARIABLE(aShortAddress);
     return OT_ERROR_NOT_IMPLEMENTED;
@@ -393,6 +423,7 @@ otError otPlatRadioAddSrcMatchShortEntry(otInstance *aInstance, const uint16_t a
 
 otError otPlatRadioAddSrcMatchExtEntry(otInstance *aInstance, const otExtAddress *aExtAddress)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
     OT_UNUSED_VARIABLE(aExtAddress);
     return OT_ERROR_NOT_IMPLEMENTED;
@@ -400,6 +431,7 @@ otError otPlatRadioAddSrcMatchExtEntry(otInstance *aInstance, const otExtAddress
 
 otError otPlatRadioClearSrcMatchShortEntry(otInstance *aInstance, const uint16_t aShortAddress)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
     OT_UNUSED_VARIABLE(aShortAddress);
     return OT_ERROR_NOT_IMPLEMENTED;
@@ -407,6 +439,7 @@ otError otPlatRadioClearSrcMatchShortEntry(otInstance *aInstance, const uint16_t
 
 otError otPlatRadioClearSrcMatchExtEntry(otInstance *aInstance, const otExtAddress *aExtAddress)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
     OT_UNUSED_VARIABLE(aExtAddress);
     return OT_ERROR_NOT_IMPLEMENTED;
@@ -414,16 +447,19 @@ otError otPlatRadioClearSrcMatchExtEntry(otInstance *aInstance, const otExtAddre
 
 void otPlatRadioClearSrcMatchShortEntries(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 }
 
 void otPlatRadioClearSrcMatchExtEntries(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 }
 
 otError otPlatRadioEnergyScan(otInstance *aInstance, uint8_t aScanChannel, uint16_t aScanDuration)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     sEnergyDetected = ED2DBM(u8MMAC_EnergyDetect(aScanChannel));
 
     setPendingEvent(kPendingEventEnergyDetected);
@@ -433,6 +469,7 @@ otError otPlatRadioEnergyScan(otInstance *aInstance, uint8_t aScanChannel, uint1
 
 otError otPlatRadioGetTransmitPower(otInstance *aInstance, int8_t *aPower)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     OT_UNUSED_VARIABLE(aPower);
@@ -442,6 +479,7 @@ otError otPlatRadioGetTransmitPower(otInstance *aInstance, int8_t *aPower)
 
 otError otPlatRadioSetTransmitPower(otInstance *aInstance, int8_t aPower)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     sDefaultTxPower = aPower;
@@ -452,6 +490,7 @@ otError otPlatRadioSetTransmitPower(otInstance *aInstance, int8_t aPower)
 
 otError otPlatRadioGetCcaEnergyDetectThreshold(otInstance *aInstance, int8_t *aThreshold)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
     OT_UNUSED_VARIABLE(aThreshold);
     return OT_ERROR_NOT_IMPLEMENTED;
@@ -459,6 +498,7 @@ otError otPlatRadioGetCcaEnergyDetectThreshold(otInstance *aInstance, int8_t *aT
 
 otError otPlatRadioSetCcaEnergyDetectThreshold(otInstance *aInstance, int8_t aThreshold)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
     OT_UNUSED_VARIABLE(aThreshold);
     return OT_ERROR_NOT_IMPLEMENTED;
@@ -507,6 +547,7 @@ static void jn516x_802154_received_timestamp_raw(volatile jn516xPhyFrame *phyfra
 
 int8_t otPlatRadioGetReceiveSensitivity(otInstance *aInstance)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     return JN516X_RECEIVE_SENSITIVITY;
@@ -515,6 +556,7 @@ int8_t otPlatRadioGetReceiveSensitivity(otInstance *aInstance)
 static int
 is_packet_for_us(volatile uint8_t *buf, int len, int do_send_ack)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 #if 0
   frame802154_t frame;
   int result;
@@ -549,6 +591,7 @@ is_packet_for_us(volatile uint8_t *buf, int len, int do_send_ack)
 
 static void radio_interrupt_handler(uint32_t mac_event)
 {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     if(mac_event & E_MMAC_INT_TX_COMPLETE) {
         sRadioState = OT_RADIO_STATE_RECEIVE;
 
