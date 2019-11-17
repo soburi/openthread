@@ -60,6 +60,114 @@
 #include <openthread/config.h>
 #include <openthread/random_noncrypto.h>
 
+static void dumpBytes(uint8_t* bytes, size_t len) {
+
+    while(len > 0) {
+	size_t dumped = len;
+	if(len == 1) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x", 
+bytes[0]);
+	}
+	else if(len == 2) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x", 
+bytes[0], bytes[1]);
+	}
+	else if(len == 3) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2]);
+	}
+	else if(len == 4) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3]);
+	}
+	else if(len == 5) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4]);
+	}
+	else if(len == 6) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]);
+	}
+	else if(len == 7) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6]);
+	}
+	else if(len == 8) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]);
+	}
+	else if(len == 9) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x %02x %02x %02x     %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]);
+	}
+	else if(len == 10) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x %02x %02x %02x     %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8], bytes[9]);
+	}
+	else if(len == 11) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x %02x %02x %02x     %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8], bytes[9], bytes[10]);
+	}
+	else if(len == 12) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x %02x %02x %02x     %02x %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8], bytes[9], bytes[10], bytes[11]);
+	}
+	else if(len == 13) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x %02x %02x %02x     %02x %02x %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8], bytes[9], bytes[10], bytes[11], bytes[12]);
+	}
+	else if(len == 14) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x %02x %02x %02x     %02x %02x %02x %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13]);
+	}
+	else if(len == 15) {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x %02x %02x %02x     %02x %02x %02x %02x %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14]);
+	}
+	else {
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM,
+"dump: %02x %02x %02x %02x %02x %02x %02x %02x     %02x %02x %02x %02x %02x %02x %02x %02x", 
+bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]);
+	dumped = 16;
+	}
+
+        len -= dumped;
+	bytes += dumped;
+    }
+}
+
+/**
+ * \brief Defines the bitfields of the frame control field (FCF).
+ */
+typedef struct {
+  unsigned int frame_type                  : 3; /** Frame type field, see 802.15.4 */
+  unsigned int security_enabled            : 1; /** True if security is used in this frame */
+  unsigned int frame_pending               : 1; /** True if sender has more data to send */
+  unsigned int ack_required                : 1; /** Is an ack frame required? */
+  unsigned int panid_compression           : 1; /** Is this a compressed header? */
+  unsigned int reserved                    : 1;            /** Unused bit */
+  unsigned int sequence_number_suppression : 1; /** Does the header omit sequence number?, see 802.15.4e */
+  unsigned int ie_list_present             : 1; /** Does the header contain Information Elements?, see 802.15.4e */
+  unsigned int dest_addr_mode              : 2; /** Destination address mode, see 802.15.4 */
+  unsigned int frame_version               : 2; /** 802.15.4 frame version */
+  unsigned int src_addr_mode               : 2; /** Source address mode, see 802.15.4 */
+} frame802154_fcf_t;
+
 // clang-format off
 
 #define SHORT_ADDRESS_SIZE    2            ///< Size of MAC short address.
@@ -252,6 +360,7 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
     tsExtAddr extAddr = {0};
     vMMAC_GetMacAddress(&extAddr);
+otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "macaddr %llx %llx", __func__, extAddr.u32L, extAddr.u32H);
 
     memcpy(&extAddr, aIeeeEui64, sizeof(tsExtAddr) );
 }
@@ -263,8 +372,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     sCurrentPanId = aPanId;
-
-    vMMAC_SetRxAddress(sCurrentPanId, sCurrentShortAddress, (tsExtAddr*)&sCurrentExtendedAddress);
 }
 
 void otPlatRadioSetExtendedAddress(otInstance *aInstance, const otExtAddress *aExtAddress)
@@ -273,7 +380,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     memcpy(&sCurrentExtendedAddress, aExtAddress, sizeof(otExtAddress));
-    vMMAC_SetRxAddress(sCurrentPanId, sCurrentShortAddress, (tsExtAddr*)&sCurrentExtendedAddress);
 }
 
 void otPlatRadioSetShortAddress(otInstance *aInstance, uint16_t aShortAddress)
@@ -282,8 +388,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     sCurrentShortAddress = aShortAddress;
-
-    vMMAC_SetRxAddress(sCurrentPanId, sCurrentShortAddress, (tsExtAddr*)&sCurrentExtendedAddress);
 }
 
 void jn516xRadioInit(void)
@@ -405,6 +509,7 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame)
 {
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
+dumpBytes(aFrame->mPsdu, aFrame->mLength);
     memcpy(sTransmitPsdu.uPayload.au8Byte, aFrame->mPsdu, aFrame->mLength);
     sTransmitPsdu.u8PayloadLength = aFrame->mLength;
 
@@ -537,7 +642,7 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     }
     else
     {
-	sDefaultTxPower = i8MMAC_GetTxPowerLevel();
+        sDefaultTxPower = i8MMAC_GetTxPowerLevel();
         *aPower = sDefaultTxPower;
     }
 
@@ -727,10 +832,108 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     return JN516X_RECEIVE_SENSITIVITY;
 }
 
-static int
-is_packet_for_us(volatile uint8_t *buf, int len, int do_send_ack)
+#define FRAME802154_BEACONFRAME     (0x00)
+#define FRAME802154_DATAFRAME       (0x01)
+#define FRAME802154_ACKFRAME        (0x02)
+#define FRAME802154_CMDFRAME        (0x03)
+
+#define FRAME802154_IEEERESERVED    (0x00)
+#define FRAME802154_NOADDR          (0x00)      /**< Only valid for ACK or Beacon frames. */
+#define FRAME802154_SHORTADDRMODE   (0x02)
+#define FRAME802154_LONGADDRMODE    (0x03)
+
+#define FRAME802154_IEEE802154_2003  (0x00)
+#define FRAME802154_IEEE802154_2006  (0x01)
+#define FRAME802154_IEEE802154_2015  (0x02)
+
+#define FRAME802154_BROADCASTADDR   (0xFFFF)
+#define FRAME802154_BROADCASTPANDID (0xFFFF)
+
+static inline int compare_shortaddr(uint16_t* laddr, uint16_t* raddr) {
+    return memcmp(laddr, raddr, 2);
+}
+static inline int is_broadcast_shortaddr(uint16_t* addr) {
+    static const uint16_t sbc = 0xFFFF;
+    return memcmp(addr, &sbc, 2);
+}
+static inline int compare_extaddr(otExtAddress* laddr, otExtAddress* raddr) {
+    return memcmp(laddr, raddr, 8);
+}
+static inline int is_broadcast_extaddr(otExtAddress* addr) {
+    static const uint64_t extbc = 0xFFFFFFFFFFFFFFFF;
+    return memcmp(addr, &extbc, 8);
+}
+
+static int is_packet_for_us(volatile uint8_t *buf, int len)
 {
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
+
+    frame802154_fcf_t* fcf = (frame802154_fcf_t*)&buf[0];
+    buf += 2;
+    int dest_pan_id = 0;
+    uint8_t seq = *buf;
+    buf += 1;
+    
+    if(fcf->frame_version == FRAME802154_IEEE802154_2015) {
+        /*
+         * IEEE 802.15.4-2015
+         * Table 7-2, PAN ID Compression value for frame version 0b10
+         */
+        if((fcf->dest_addr_mode == FRAME802154_NOADDR &&
+            fcf->src_addr_mode  == FRAME802154_NOADDR &&
+            fcf->panid_compression == 1) ||
+           (fcf->dest_addr_mode != FRAME802154_NOADDR &&
+            fcf->src_addr_mode  == FRAME802154_NOADDR &&
+            fcf->panid_compression == 0) ||
+           (fcf->dest_addr_mode == FRAME802154_LONGADDRMODE &&
+            fcf->src_addr_mode  == FRAME802154_LONGADDRMODE &&
+            fcf->panid_compression == 0) ||
+           ((fcf->dest_addr_mode == FRAME802154_SHORTADDRMODE &&
+             fcf->src_addr_mode  != FRAME802154_NOADDR) ||
+            (fcf->dest_addr_mode != FRAME802154_NOADDR &&
+             fcf->src_addr_mode  == FRAME802154_SHORTADDRMODE)) ){
+            dest_pan_id = 1;
+        }
+    }
+    else {
+        /* No PAN ID in ACK */
+        if(fcf->frame_type != FRAME802154_ACKFRAME) {
+            if(fcf->dest_addr_mode & 3) {
+                dest_pan_id = 1;
+            }
+        }
+    }
+
+    if(dest_pan_id) {
+        uint16_t pan = *((uint16_t*)buf);
+        buf += 2;
+        if(sCurrentPanId != FRAME802154_BROADCASTADDR &&
+                     pan != FRAME802154_BROADCASTADDR &&
+                     pan != sCurrentPanId) {
+            return 0;
+        }
+    }
+
+    if(fcf->dest_addr_mode == 2) {
+        if(!is_broadcast_shortaddr((uint16_t*)buf) ) {
+            if(compare_shortaddr((uint16_t*)buf, &sCurrentShortAddress) ) {
+                return 2;
+            }
+        }
+        buf += 2;
+        return 1;
+    }
+    else if(fcf->dest_addr_mode == 3) {
+        if(!is_broadcast_extaddr((otExtAddress*)buf) ) {
+            if(compare_extaddr((otExtAddress*)buf, &sCurrentExtendedAddress) ) {
+                return 2;
+            }
+        }
+        buf += 2;
+        return 1;
+    }
+
+    return 0;
 #if 0
   frame802154_t frame;
   int result;
@@ -780,10 +983,10 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     }
     else if(mac_event & E_MMAC_INT_RX_COMPLETE) {
         volatile jn516xPhyFrame *rx_frame_buffer = recvframe_head();
+dumpBytes((uint8_t*)rx_frame_buffer->phy.uPayload.au8Byte, (size_t)rx_frame_buffer->phy.u8PayloadLength);
         uint32_t rx_status = u32MMAC_GetRxErrors();
         if(rx_status != 0) {
-            switch (rx_status)
-	    {
+            switch (rx_status) {
             case E_MMAC_RXSTAT_ERROR:
                 sReceiveError = OT_ERROR_FCS;
                 break;
@@ -793,29 +996,31 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
             }
             sAckedWithFramePending = false;
             setPendingEvent(kPendingEventReceiveFailed);
-	}
+        }
         else if(rx_frame_buffer->phy.u8PayloadLength > CHECKSUM_LEN) {
-            int packet_for_me = 0;
-            if(!sPromiscuous) {
+            int packet_for_me = is_packet_for_us(rx_frame_buffer->phy.uPayload.au8Byte, rx_frame_buffer->phy.u8PayloadLength);
+            //if(!sPromiscuous) {
                 /* Check RX address */
-                packet_for_me = is_packet_for_us(rx_frame_buffer->phy.uPayload.au8Byte, rx_frame_buffer->phy.u8PayloadLength - CHECKSUM_LEN, 1);
-            } else {//if(!frame_filtering) {
-                packet_for_me = 1;
-            }
+            //} else {//if(!frame_filtering) {
+            //    packet_for_me = 1;
+            //}
 
             if(!packet_for_me) {
                 /* Prevent reading */
                 rx_frame_buffer->phy.u8PayloadLength = 0;
             } else {
+                if(packet_for_me == 2) {
+                    //send_ack();
+                }
                 /* read and cache RSSI and LQI values */
                 uint8_t lqi;
                 int8_t rssi = ED2DBM(u8MMAC_GetRxLqi(&lqi));
 
                 jn516x_802154_received_timestamp_raw(rx_frame_buffer, rssi, lqi, 0);
                 rx_frame_buffer = recvframe_next();
-		if(!rx_frame_buffer) {
-		}
-	    }
+                if(!rx_frame_buffer) {
+                }
+            }
         }
     }
 }
