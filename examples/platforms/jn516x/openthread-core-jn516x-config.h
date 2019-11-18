@@ -80,7 +80,7 @@ size_t	 _EXFUN(strnlen,(const char *, size_t));
  *
  */
 #ifndef OPENTHREAD_CONFIG_NUM_MESSAGE_BUFFERS
-#define OPENTHREAD_CONFIG_NUM_MESSAGE_BUFFERS 20
+#define OPENTHREAD_CONFIG_NUM_MESSAGE_BUFFERS 16
 #endif
 
 /**
