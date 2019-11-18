@@ -416,7 +416,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
         return OT_RADIO_STATE_DISABLED;
     }
 
-
     return sRadioState;
 }
 
@@ -506,7 +505,6 @@ dumpBytes(aFrame->mPsdu, aFrame->mLength);
     vMMAC_SetChannelAndPower(sCurrentChannel, sDefaultTxPower);
 
     setPendingEvent(kPendingEventChannelAccessFailure);
-    sRadioState = OT_RADIO_STATE_RECEIVE;
 
     vMMAC_StartPhyTransmit(&sTransmitPsdu, E_MMAC_TX_START_NOW | E_MMAC_TX_USE_CCA);
 
@@ -939,9 +937,9 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
         }
     }
     else if(mac_event & E_MMAC_INT_RX_COMPLETE) {
-        volatile jn516xPhyFrame *rx_frame_buffer = recvframe_head();
-dumpBytes((uint8_t*)rx_frame_buffer->phy.uPayload.au8Byte, (size_t)rx_frame_buffer->phy.u8PayloadLength);
+dumpBytes((uint8_t*)recvframe_head()->phy.uPayload.au8Byte, (size_t)recvframe_head()->phy.u8PayloadLength);
         uint32_t rx_status = u32MMAC_GetRxErrors();
+
         if(rx_status != 0) {
             switch (rx_status) {
             case E_MMAC_RXSTAT_ERROR:
@@ -954,8 +952,8 @@ dumpBytes((uint8_t*)rx_frame_buffer->phy.uPayload.au8Byte, (size_t)rx_frame_buff
             sAckedWithFramePending = false;
             setPendingEvent(kPendingEventReceiveFailed);
         }
-        else if(rx_frame_buffer->phy.u8PayloadLength > CHECKSUM_LEN) {
-            int packet_for_me = is_packet_for_us(&rx_frame_buffer->phy);
+        else if(recvframe_head()->phy.u8PayloadLength > CHECKSUM_LEN) {
+            int packet_for_me = is_packet_for_us(&recvframe_head()->phy);
             //if(!sPromiscuous) {
                 /* Check RX address */
             //} else {//if(!frame_filtering) {
@@ -965,7 +963,7 @@ dumpBytes((uint8_t*)rx_frame_buffer->phy.uPayload.au8Byte, (size_t)rx_frame_buff
 otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "packet_for_me = %d", packet_for_me);
             if(!packet_for_me) {
                 /* Prevent reading */
-                rx_frame_buffer->phy.u8PayloadLength = 0;
+                recvframe_head()->phy.u8PayloadLength = 0;
             } else {
                 if(packet_for_me == 2) {
                     //send_ack();
@@ -974,11 +972,13 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "packet_for_me = %d", packe
                 uint8_t lqi;
                 int8_t rssi = ED2DBM(u8MMAC_GetRxLqi(&lqi));
 
-                jn516x_802154_received_timestamp_raw(rx_frame_buffer, rssi, lqi, 0);
-                rx_frame_buffer = recvframe_next();
-                if(!rx_frame_buffer) {
-                }
+                jn516x_802154_received_timestamp_raw(recvframe_head(), rssi, lqi, 0);
             }
+        }
+        volatile jn516xPhyFrame *nextbuffer = recvframe_next();
+        if(nextbuffer) {
+            vMMAC_StartPhyReceive((tsPhyFrame*)(&nextbuffer->phy),
+                (E_MMAC_RX_START_NOW | E_MMAC_RX_NO_FCS_ERROR) ); /* means: reject FCS errors */
         }
     }
 }
