@@ -504,8 +504,6 @@ dumpBytes(aFrame->mPsdu, aFrame->mLength);
     sCurrentChannel = aFrame->mChannel;
     vMMAC_SetChannelAndPower(sCurrentChannel, sDefaultTxPower);
 
-    setPendingEvent(kPendingEventChannelAccessFailure);
-
     vMMAC_StartPhyTransmit(&sTransmitPsdu, E_MMAC_TX_START_NOW | E_MMAC_TX_USE_CCA);
 
     clearPendingEvents();
@@ -845,12 +843,16 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     uint8_t     frame_version = (buf[1] > 4) & 0x3;
     uint8_t     src_addr_mode = (buf[1] > 6) & 0x3;
 
+    if(frame_type != 0x1) {
+        return 1;
+    }
+
     buf += 2;
     int dest_pan_id = 0;
     uint8_t seq = *buf;
     buf += 1;
     if(buf > endbuf) return 0;
-    
+
     if(frame_version == FRAME802154_IEEE802154_2015) {
         /*
          * IEEE 802.15.4-2015
@@ -881,10 +883,11 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
         }
     }
 
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "dest_pan_id = %d", dest_pan_id);
-
     if(dest_pan_id) {
-        uint16_t pan = *((uint16_t*)buf);
+        uint16_t pan = (*buf&0xFF);
+        buf++;
+        pan |= (*buf&0xFF) << 8;
+        buf++;
         buf += 2;
         if(buf > endbuf) return 0;
 
@@ -918,7 +921,7 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "dest_pan_id = %d", dest_pa
         return ret;
     }
 
-    return 0;
+    return 1;
 }
 
 static void radio_interrupt_handler(uint32_t mac_event)
