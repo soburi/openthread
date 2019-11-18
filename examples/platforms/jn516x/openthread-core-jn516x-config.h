@@ -61,9 +61,7 @@ size_t	 _EXFUN(strnlen,(const char *, size_t));
  * The platform-specific string to insert into the OpenThread version string.
  *
  */
-#ifndef OPENTHREAD_CONFIG_PLATFORM_INFO
 #define OPENTHREAD_CONFIG_PLATFORM_INFO "JN516X"
-#endif
 
 /**
  * @def OPENTHREAD_CONFIG_STACK_VENDOR_OUI
@@ -76,33 +74,13 @@ size_t	 _EXFUN(strnlen,(const char *, size_t));
 #endif
 
 /**
- * @def OPENTHREAD_CONFIG_MLE_MAX_CHILDREN
- *
- * The maximum number of children.
- *
- */
-#ifndef OPENTHREAD_CONFIG_MLE_MAX_CHILDREN
-#define OPENTHREAD_CONFIG_MLE_MAX_CHILDREN 32
-#endif
-
-/**
  * @def OPENTHREAD_CONFIG_NUM_MESSAGE_BUFFERS
  *
  * The number of message buffers in the buffer pool.
  *
  */
 #ifndef OPENTHREAD_CONFIG_NUM_MESSAGE_BUFFERS
-#define OPENTHREAD_CONFIG_NUM_MESSAGE_BUFFERS 32
-#endif
-
-/**
- * @def OPENTHREAD_CONFIG_MLE_IP_ADDRS_PER_CHILD
- *
- * The maximum number of supported IPv6 address registrations per child.
- *
- */
-#ifndef OPENTHREAD_CONFIG_MLE_IP_ADDRS_PER_CHILD
-#define OPENTHREAD_CONFIG_MLE_IP_ADDRS_PER_CHILD 6
+#define OPENTHREAD_CONFIG_NUM_MESSAGE_BUFFERS 20
 #endif
 
 /**
@@ -122,7 +100,7 @@ size_t	 _EXFUN(strnlen,(const char *, size_t));
  *
  */
 #ifndef OPENTHREAD_CONFIG_TMF_ADDRESS_CACHE_ENTRIES
-#define OPENTHREAD_CONFIG_TMF_ADDRESS_CACHE_ENTRIES 32
+#define OPENTHREAD_CONFIG_TMF_ADDRESS_CACHE_ENTRIES 20
 #endif
 
 /**
@@ -212,7 +190,7 @@ size_t	 _EXFUN(strnlen,(const char *, size_t));
  *
  */
 #ifndef OPENTHREAD_CONFIG_HEAP_INTERNAL_SIZE
-#define OPENTHREAD_CONFIG_HEAP_INTERNAL_SIZE (4096 * sizeof(void *))
+#define OPENTHREAD_CONFIG_HEAP_INTERNAL_SIZE (2048 * sizeof(void *))
 #endif
 
 /**
@@ -222,7 +200,7 @@ size_t	 _EXFUN(strnlen,(const char *, size_t));
  *
  */
 #ifndef OPENTHREAD_CONFIG_HEAP_INTERNAL_SIZE_NO_DTLS
-#define OPENTHREAD_CONFIG_HEAP_INTERNAL_SIZE_NO_DTLS 2048
+#define OPENTHREAD_CONFIG_HEAP_INTERNAL_SIZE_NO_DTLS 1024
 #endif
 
 /**
@@ -233,16 +211,6 @@ size_t	 _EXFUN(strnlen,(const char *, size_t));
  */
 #ifndef OPENTHREAD_CONFIG_TIME_SYNC_ENABLE
 #define OPENTHREAD_CONFIG_TIME_SYNC_ENABLE 0
-#endif
-
-/**
- * @def OPENTHREAD_CONFIG_CLI_TX_BUFFER_SIZE
- *
- *  The size of CLI message buffer in bytes
- *
- */
-#ifndef OPENTHREAD_CONFIG_CLI_UART_TX_BUFFER_SIZE
-#define OPENTHREAD_CONFIG_CLI_UART_TX_BUFFER_SIZE 2048
 #endif
 
 /**
@@ -257,14 +225,6 @@ size_t	 _EXFUN(strnlen,(const char *, size_t));
  */
 #if OPENTHREAD_CONFIG_TIME_SYNC_ENABLE
 #define OPENTHREAD_CONFIG_MAC_HEADER_IE_SUPPORT 1
-#endif
-
-/*
- * Suppress the ARMCC warning on unreachable statement,
- * e.g. break after assert(false) or ExitNow() macro.
- */
-#if defined(__CC_ARM)
-_Pragma("diag_suppress=111") _Pragma("diag_suppress=128")
 #endif
 
 #endif  // OPENTHREAD_CORE_JN516X_CONFIG_H_
