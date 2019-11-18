@@ -310,7 +310,6 @@ static volatile uint32_t sPendingEvents;
 
 static void dataInit(void)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     sDisabled = true;
 
     sTransmitFrame.mPsdu = sTransmitPsdu.uPayload.au8Byte;
@@ -328,7 +327,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 
 static void convertShortAddress(uint8_t *aTo, uint16_t aFrom)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     aTo[0] = (uint8_t)aFrom;
     aTo[1] = (uint8_t)(aFrom >> 8);
 }
@@ -340,7 +338,6 @@ static inline bool isPendingEventSet(RadioPendingEvents aEvent)
 
 static void setPendingEvent(RadioPendingEvents aEvent)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     uint32_t          bitToSet = 1UL << aEvent;
 
     sPendingEvents |= bitToSet;
@@ -350,7 +347,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 
 static void resetPendingEvent(RadioPendingEvents aEvent)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     uint32_t          bitsToRemain = ~(1UL << aEvent);
 
     sPendingEvents &= bitsToRemain;
@@ -358,7 +354,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 
 static inline void clearPendingEvents(void)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     // Clear pending events that could cause race in the MAC layer.
     uint32_t          bitsToRemain = ~(0UL);
 
@@ -382,7 +377,6 @@ void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64)
 
 void otPlatRadioSetPanId(otInstance *aInstance, uint16_t aPanId)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     sCurrentPanId = aPanId;
@@ -390,7 +384,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 
 void otPlatRadioSetExtendedAddress(otInstance *aInstance, const otExtAddress *aExtAddress)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     memcpy(&sCurrentExtendedAddress, aExtAddress, sizeof(otExtAddress));
@@ -398,7 +391,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 
 void otPlatRadioSetShortAddress(otInstance *aInstance, uint16_t aShortAddress)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     sCurrentShortAddress = aShortAddress;
@@ -544,7 +536,6 @@ dumpBytes(aFrame->mPsdu, aFrame->mLength);
 
 otRadioFrame *otPlatRadioGetTransmitBuffer(otInstance *aInstance)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     return &sTransmitFrame;
@@ -560,7 +551,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 
 otRadioCaps otPlatRadioGetCaps(otInstance *aInstance)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     return OT_RADIO_CAPS_ENERGY_SCAN;
@@ -568,7 +558,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 
 bool otPlatRadioGetPromiscuous(otInstance *aInstance)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
 
     return sPromiscuous;
@@ -576,7 +565,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 
 void otPlatRadioSetPromiscuous(otInstance *aInstance, bool aEnable)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s %d", __func__, aEnable);
     OT_UNUSED_VARIABLE(aInstance);
 
     sPromiscuous = aEnable;
