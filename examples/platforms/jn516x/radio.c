@@ -98,23 +98,6 @@
 #define FRAME802154_BROADCASTADDR   (0xFFFF)
 #define FRAME802154_BROADCASTPANDID (0xFFFF)
 
-/**
- * \brief Defines the bitfields of the frame control field (FCF).
- */
-typedef struct {
-  unsigned int frame_type                  : 3; /** Frame type field, see 802.15.4 */
-  unsigned int security_enabled            : 1; /** True if security is used in this frame */
-  unsigned int frame_pending               : 1; /** True if sender has more data to send */
-  unsigned int ack_required                : 1; /** Is an ack frame required? */
-  unsigned int panid_compression           : 1; /** Is this a compressed header? */
-  unsigned int reserved                    : 1;            /** Unused bit */
-  unsigned int sequence_number_suppression : 1; /** Does the header omit sequence number?, see 802.15.4e */
-  unsigned int ie_list_present             : 1; /** Does the header contain Information Elements?, see 802.15.4e */
-  unsigned int dest_addr_mode              : 2; /** Destination address mode, see 802.15.4 */
-  unsigned int frame_version               : 2; /** 802.15.4 frame version */
-  unsigned int src_addr_mode               : 2; /** Source address mode, see 802.15.4 */
-} frame802154_fcf_t __attribute__((__packed__));
-
 /* Default Tx power [dBm] (between OUTPUT_POWER_MIN and OUTPUT_POWER_MAX) */
 #define DEFAULT_TX_POWER 0
 
@@ -856,9 +839,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     volatile uint8_t* buf = phy->uPayload.au8Byte;
     int len =  phy->u8PayloadLength;
 
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "sizeof(frame802154_fcf_t) = %d", sizeof(frame802154_fcf_t));
-
-    frame802154_fcf_t* fcf = (frame802154_fcf_t*)&buf[0];
     volatile uint8_t* endbuf = buf + len;
 
     uint8_t        frame_type = (buf[0] > 0) & 0x7;
