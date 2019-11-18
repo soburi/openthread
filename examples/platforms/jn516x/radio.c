@@ -356,13 +356,13 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
 #if !OPENTHREAD_CONFIG_ENABLE_PLATFORM_EUI64_CUSTOM_SOURCE
 void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64)
 {
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
     OT_UNUSED_VARIABLE(aInstance);
-    tsExtAddr extAddr = {0};
+    tsExtAddr extAddr;
     vMMAC_GetMacAddress(&extAddr);
-otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "macaddr %llx %llx", __func__, extAddr.u32L, extAddr.u32H);
+    uint32_t* peui64 = (uint32_t*)aIeeeEui64;
 
-    memcpy(&extAddr, aIeeeEui64, sizeof(tsExtAddr) );
+    peui64[0] = extAddr.u32H;
+    peui64[1] = extAddr.u32L;
 }
 #endif // OPENTHREAD_CONFIG_ENABLE_PLATFORM_EUI64_CUSTOM_SOURCE
 
