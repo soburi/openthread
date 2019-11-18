@@ -888,7 +888,6 @@ otPlatLog(OT_LOG_LEVEL_DEBG, OT_LOG_REGION_PLATFORM, "enter %s", __func__);
         buf++;
         pan |= (*buf&0xFF) << 8;
         buf++;
-        buf += 2;
         if(buf > endbuf) return 0;
 
         if(sCurrentPanId != FRAME802154_BROADCASTADDR &&
