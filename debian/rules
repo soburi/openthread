@@ -1,0 +1,104 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_autoreconf:
+
+override_dh_auto_test:
+
+override_dh_update_autotools_config:
+
+override_dh_auto_configure:
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libmbedtls-openthread-dev.install.in > debian/libmbedtls-openthread-dev.install
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libmbedtls-openthread-dev.dirs.in > debian/libmbedtls-openthread-dev.dirs
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libopenthread-dev.install.in > debian/libopenthread-dev.install
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libopenthread-dev.dirs.in > debian/libopenthread-dev.dirs
+	dh_auto_configure -- -GNinja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+		-DOT_COMPILE_WARNING_AS_ERROR=ON \
+		-DOT_PLATFORM=posix \
+		-DOT_BACKBONE_ROUTER=ON \
+		-DOT_BACKBONE_ROUTER_DUA_NDPROXYING=OFF \
+		-DOT_BORDER_AGENT=ON \
+		-DOT_BORDER_ROUTER=ON \
+		-DOT_BORDER_ROUTING=ON \
+		-DOT_COAP=ON \
+		-DOT_COAPS=ON \
+		-DOT_COMMISSIONER=ON \
+		-DOT_DNSSD_SERVER=ON \
+		-DOT_ECDSA=ON \
+		-DOT_BUILTIN_MBEDTLS_MANAGEMENT=OFF \
+		-DOT_EXTERNAL_HEAP=ON \
+		-DOT_SLAAC=ON \
+		-DOT_JOINER=ON \
+		-DOT_LEGACY=ON \
+		-DOT_LOG_LEVEL=INFO \
+		-DOT_LOG_LEVEL_DYNAMIC=ON \
+		-DOT_MAC_FILTER=ON \
+		-DOT_MLR=ON \
+		-DOT_PLATFORM_NETIF=ON \
+		-DOT_PLATFORM_UDP=ON \
+		-DOT_POSIX_SETTINGS_PATH=\"var/lib/thread\" \
+		-DOT_TREL=ON \
+		-DOT_SRP_SERVER=ON \
+		-DOT_THREAD_VERSION=1.2 \
+		-DOT_SERVICE=ON \
+		-DOT_DAEMON=ON \
+		-DOT_FTD=1 \
+		-DOT_MTD=1 \
+		-DOT_RADIO=1 \
+		-DOT_COMPILE_WARNING_AS_ERROR=ON \
+		\
+		-DOT_COAP_BLOCK=ON \
+		-DOT_COAP_OBSERVE=ON \
+		-DOT_CHANNEL_MANAGER=ON \
+		-DOT_CHANNEL_MONITOR=ON \
+		-DOT_CHILD_SUPERVISION=ON \
+		-DOT_DATASET_UPDATER=ON \
+		-DOT_DHCP6_CLIENT=ON \
+		-DOT_DHCP6_SERVER=ON \
+		-DOT_DIAGNOSTIC=ON \
+		-DOT_DNS_CLIENT=ON \
+		-DOT_IP6_FRAGM=ON \
+		-DOT_JAM_DETECTION=ON \
+		-DOT_LOG_OUTPUT=PLATFORM_DEFINED \
+		-DOT_MTD_NETDIAG=ON \
+		-DOT_NEIGHBOR_DISCOVERY_AGENT=ON \
+		-DOT_PING_SENDER=ON \
+		-DOT_POSIX_MAX_POWER_TABLE=ON \
+		-DOT_SNTP_CLIENT=ON \
+		-DOT_SRP_CLIENT=ON \
+		-DOT_RCP_RESTORATION_MAX_COUNT=2 \
+		-DOT_REFERENCE_DEVICE=ON \
+		-DOT_UDP_FORWARD=OFF \
+		-DOT_COVERAGE=OFF -B . -S
+
+
+override_dh_auto_install:
+	dh_auto_install
+	mkdir -p debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp -r -d include/ debian/tmp/usr/
+	cp -r src/posix/platform/include/openthread/openthread-system.h debian/tmp/usr/include/openthread/
+	rm debian/tmp/usr/include/openthread-config-android.h
+	rm debian/tmp/usr/include/Makefile.am
+	rm debian/tmp/usr/include/openthread/BUILD.gn
+	cp obj-$(DEB_HOST_MULTIARCH)/src/cli/libopenthread-cli-ftd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/cli/libopenthread-cli-mtd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/core/libopenthread-ftd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/core/libopenthread-mtd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/core/libopenthread-radio.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/lib/hdlc/libopenthread-hdlc.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/lib/platform/libopenthread-platform.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/lib/spinel/libopenthread-spinel-rcp.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/lib/spinel/libopenthread-spinel-ncp.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/lib/url/libopenthread-url.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/ncp/libopenthread-ncp-ftd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/ncp/libopenthread-ncp-mtd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/ncp/libopenthread-rcp.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/posix/platform/libopenthread-posix.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp -r third_party/mbedtls/repo/include/mbedtls debian/tmp/usr/include/
+	cp obj-$(DEB_HOST_MULTIARCH)/third_party/mbedtls/repo/library/libmbedcrypto.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libmbedcrypto.a
+	cp obj-$(DEB_HOST_MULTIARCH)/third_party/mbedtls/repo/library/libmbedx509.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libmbedx509.a
+	cp obj-$(DEB_HOST_MULTIARCH)/third_party/mbedtls/repo/library/libmbedtls.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libmbedtls.a

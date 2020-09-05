@@ -1,0 +1,31 @@
+openthread (20200818-961-gdf8e06aaa-1ubuntu5) hirsute; urgency=medium
+
+  * restructure packages
+
+ -- TOKITA Hiroshi <soburi@gmail.com>  Sun, 06 Jun 2021 20:31:02 +0900
+
+openthread (20200818-961-gdf8e06aaa-1ubuntu4) hirsute; urgency=medium
+
+  * add openthread-system.h
+  * add libopenthread-posix.a
+  * remove openthread-config-android.h
+
+ -- TOKITA Hiroshi <soburi@gmail.com>  Sun, 06 Jun 2021 17:16:08 +0900
+
+openthread (20200818-961-gdf8e06aaa-1ubuntu3) hirsute; urgency=medium
+
+  * correct section
+
+ -- TOKITA Hiroshi <soburi@gmail.com>  Sun, 23 May 2021 22:22:11 +0900
+
+openthread (20200818-961-gdf8e06aaa-1ubuntu2) hirsute; urgency=medium
+
+  * add build-dep
+
+ -- TOKITA Hiroshi <soburi@gmail.com>  Sun, 23 May 2021 21:42:05 +0900
+
+openthread (20200818-961-gdf8e06aaa-1ubuntu1) hirsute; urgency=medium
+
+  * Initial release
+
+ -- TOKITA Hiroshi <soburi@gmail.com>  Sat, 05 Sep 2020 11:32:04 +0900
