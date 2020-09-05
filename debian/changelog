@@ -1,0 +1,5 @@
+openthread (0.01.00-1) unstable; urgency=medium
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- crs <crs@unknown>  Sat, 05 Sep 2020 11:32:04 +0900
