@@ -3,7 +3,7 @@ Priority: optional
 Maintainer: TOKITA Hiroshi <soburi@gmail.com>
 Build-Depends: debhelper-compat (= 12), automake, libtool, lsb-release, cmake, ninja-build
 Standards-Version: 4.4.1
-Section: libs
+Section: net
 Homepage: https://openthread.io/
 #Vcs-Browser: https://salsa.debian.org/debian/openthread
 #Vcs-Git: https://salsa.debian.org/debian/openthread.git
