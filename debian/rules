@@ -24,7 +24,9 @@ override_dh_auto_configure:
 override_dh_auto_test:
 
 override_dh_auto_build:
-	cmake -GNinja --build $(DESTDIR) \
+	echo debian/tmp
+	cmake -GNinja --build debian/tmp \
+		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 		-DOT_COMPILE_WARNING_AS_ERROR=ON \
 		-DOT_PLATFORM=posix \
