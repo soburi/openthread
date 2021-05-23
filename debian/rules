@@ -17,15 +17,10 @@ export DH_VERBOSE = 1
 %:
 	dh $@
 
-override_dh_autoreconf:
-
-override_dh_auto_configure:
-
 override_dh_auto_test:
 
 override_dh_auto_configure:
-	mkdir -p debian/tmp/build
-	cd debian/tmp/build && cmake -GNinja \
+	dh_auto_configure -- -GNinja \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 		-DOT_COMPILE_WARNING_AS_ERROR=ON \
@@ -67,13 +62,13 @@ override_dh_auto_configure:
 		-DOT_POSIX_MAX_POWER_TABLE=ON \
 		-DOT_DAEMON=ON \
 		-DOT_TREL=ON \
-		-DOT_COVERAGE=OFF ../../.. -B .
+		-DOT_COVERAGE=OFF -B . -S
 
-override_dh_auto_build:
-	dh_auto_build -- -C debian/tmp/build
+#override_dh_auto_build:
+#	dh_auto_build -- -C debian/tmp/build
 
-override_dh_install:
-	cd debian/tmp/build && dh_auto_install
+#override_dh_install:
+#	cd debian/tmp/build && dh_auto_install
 
 # dh_make generated override targets
 # This is example for Cmake (See https://bugs.debian.org/641051 )
