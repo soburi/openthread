@@ -67,8 +67,10 @@ override_dh_auto_configure:
 #override_dh_auto_build:
 #	dh_auto_build -- -C debian/tmp/build
 
-#override_dh_install:
-#	cd debian/tmp/build && dh_auto_install
+override_dh_install:
+	mkdir -p debian/tmp/usr/include/
+	touch debian/tmp/usr/include/xxx.h
+	dh_auto_install
 
 # dh_make generated override targets
 # This is example for Cmake (See https://bugs.debian.org/641051 )
