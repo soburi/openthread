@@ -1,7 +1,7 @@
 Source: openthread
 Priority: optional
 Maintainer: TOKITA Hiroshi <soburi@gmail.com>
-Build-Depends: debhelper-compat (= 12)
+Build-Depends: debhelper-compat (= 12), automake, libtool, lsb-release, cmake, ninja-build
 Standards-Version: 4.4.1
 Section: libs
 Homepage: https://openthread.io/

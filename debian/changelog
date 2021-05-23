@@ -1,3 +1,9 @@
+openthread (20200818-961-gdf8e06aaa-1ubuntu2) hirsute; urgency=medium
+
+  * add build-dep
+
+ -- TOKITA Hiroshi <soburi@gmail.com>  Sun, 23 May 2021 21:42:05 +0900
+
 openthread (20200818-961-gdf8e06aaa-1ubuntu1) hirsute; urgency=medium
 
   * Initial release
