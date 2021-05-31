@@ -1,3 +1,2 @@
-ot-daemon: no-manual-page usr/bin/ot-ctl
 ot-daemon: no-manual-page usr/sbin/ot-daemon
 

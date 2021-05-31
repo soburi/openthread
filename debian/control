@@ -23,3 +23,10 @@ Multi-Arch: no
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: OpenThread daemon
  ot-daemon is daemon
+
+Package: ot-ctl
+Architecture: any
+Multi-Arch: no
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: OpenThread control
+ ot-ctl is controller

@@ -1,2 +1,1 @@
-usr/bin/*
-usr/sbin/*
+usr/sbin/ot-daemon
