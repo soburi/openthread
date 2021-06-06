@@ -1,5 +1,4 @@
 date
-remove_autoconf.ac
-IFNAMSIZ
-mbedtls
-cmakeoptions
+remove-autoconf.ac
+mbedtls-config
+add-options
