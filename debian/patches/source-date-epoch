@@ -1,0 +1,27 @@
+--- a/src/core/CMakeLists.txt
++++ b/src/core/CMakeLists.txt
+@@ -225,6 +225,11 @@
+   list(APPEND COMMON_SOURCES ${OT_VENDOR_EXTENSION})
+ endif()
+ 
++set(SOURCE_DATE_EPOCH "0" CACHE STRING "SOURCE_DATE_EPOCH for reproducible build")
++if(SOURCE_DATE_EPOCH)
++  target_compile_definitions(ot-config INTERFACE "SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}")
++endif()
++
+ if(OT_FTD)
+     include(ftd.cmake)
+ endif()
+--- a/src/core/api/instance_api.cpp
++++ b/src/core/api/instance_api.cpp
+@@ -166,8 +166,8 @@
+     static
+ #endif
+     const char sVersion[] = PACKAGE_NAME "/" PACKAGE_VERSION "; " OPENTHREAD_CONFIG_PLATFORM_INFO
+-#if defined(__DATE__)
+-                                         "; " __DATE__ " " __TIME__
++#if defined(SOURCE_DATE_EPOCH)
++                                         "; SOURCE_DATE_EPOCH:" SOURCE_DATE_EPOCH
+ #endif
+ #ifdef PLATFORM_VERSION_ATTR_SUFFIX
+                                              PLATFORM_VERSION_ATTR_SUFFIX

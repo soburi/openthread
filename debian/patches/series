@@ -1,4 +1,3 @@
-date
 remove-autoconf.ac
-mbedtls-config
-add-options
+source-date-epoch
+apply-otbr-config
