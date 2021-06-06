@@ -79,17 +79,17 @@ override_dh_auto_install:
 	cp -r -d include/ debian/tmp/usr/
 	cp -r src/posix/platform/include/openthread/openthread-system.h debian/tmp/usr/include/openthread/
 	rm debian/tmp/usr/include/openthread-config-android.h
-	cp obj-$(DEB_HOST_MULTIARCH)/src/cli/libopenthread-cli-mtd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
 	cp obj-$(DEB_HOST_MULTIARCH)/src/cli/libopenthread-cli-ftd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
-	cp obj-$(DEB_HOST_MULTIARCH)/src/ncp/libopenthread-ncp-mtd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
-	cp obj-$(DEB_HOST_MULTIARCH)/src/ncp/libopenthread-ncp-ftd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
-	cp obj-$(DEB_HOST_MULTIARCH)/src/ncp/libopenthread-rcp.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/cli/libopenthread-cli-mtd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/core/libopenthread-ftd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/core/libopenthread-mtd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/core/libopenthread-radio.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
 	cp obj-$(DEB_HOST_MULTIARCH)/src/lib/hdlc/libopenthread-hdlc.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/lib/platform/libopenthread-platform.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
 	cp obj-$(DEB_HOST_MULTIARCH)/src/lib/spinel/libopenthread-spinel-rcp.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
 	cp obj-$(DEB_HOST_MULTIARCH)/src/lib/spinel/libopenthread-spinel-ncp.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
 	cp obj-$(DEB_HOST_MULTIARCH)/src/lib/url/libopenthread-url.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
-	cp obj-$(DEB_HOST_MULTIARCH)/src/lib/platform/libopenthread-platform.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
-	cp obj-$(DEB_HOST_MULTIARCH)/src/core/libopenthread-ftd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
-	cp obj-$(DEB_HOST_MULTIARCH)/src/core/libopenthread-radio.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
-	cp obj-$(DEB_HOST_MULTIARCH)/src/core/libopenthread-mtd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
-
+	cp obj-$(DEB_HOST_MULTIARCH)/src/ncp/libopenthread-ncp-ftd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/ncp/libopenthread-ncp-mtd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/ncp/libopenthread-rcp.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp obj-$(DEB_HOST_MULTIARCH)/src/posix/platform/libopenthread-posix.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
