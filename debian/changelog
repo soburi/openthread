@@ -1,3 +1,11 @@
+openthread (20200818-961-gdf8e06aaa-1ubuntu4) hirsute; urgency=medium
+
+  * add openthread-system.h
+  * add libopenthread-posix.a
+  * remove openthread-config-android.h
+
+ -- TOKITA Hiroshi <soburi@gmail.com>  Sun, 06 Jun 2021 17:16:08 +0900
+
 openthread (20200818-961-gdf8e06aaa-1ubuntu3) hirsute; urgency=medium
 
   * correct section
