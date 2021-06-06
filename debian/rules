@@ -10,7 +10,10 @@ override_dh_auto_test:
 override_dh_update_autotools_config:
 
 override_dh_auto_configure:
-	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/openthread-dev.dirs.in > debian/openthread-dev.dirs
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libmbedtls-openthread-dev.install.in > debian/libmbedtls-openthread-dev.install
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libmbedtls-openthread-dev.dirs.in > debian/libmbedtls-openthread-dev.dirs
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libopenthread-dev.install.in > debian/libopenthread-dev.install
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libopenthread-dev.dirs.in > debian/libopenthread-dev.dirs
 	dh_auto_configure -- -GNinja \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
@@ -79,6 +82,8 @@ override_dh_auto_install:
 	cp -r -d include/ debian/tmp/usr/
 	cp -r src/posix/platform/include/openthread/openthread-system.h debian/tmp/usr/include/openthread/
 	rm debian/tmp/usr/include/openthread-config-android.h
+	rm debian/tmp/usr/include/Makefile.am
+	rm debian/tmp/usr/include/openthread/BUILD.gn
 	cp obj-$(DEB_HOST_MULTIARCH)/src/cli/libopenthread-cli-ftd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
 	cp obj-$(DEB_HOST_MULTIARCH)/src/cli/libopenthread-cli-mtd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
 	cp obj-$(DEB_HOST_MULTIARCH)/src/core/libopenthread-ftd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
@@ -93,3 +98,7 @@ override_dh_auto_install:
 	cp obj-$(DEB_HOST_MULTIARCH)/src/ncp/libopenthread-ncp-mtd.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
 	cp obj-$(DEB_HOST_MULTIARCH)/src/ncp/libopenthread-rcp.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
 	cp obj-$(DEB_HOST_MULTIARCH)/src/posix/platform/libopenthread-posix.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	cp -r third_party/mbedtls/repo/include/mbedtls debian/tmp/usr/include/
+	cp obj-$(DEB_HOST_MULTIARCH)/third_party/mbedtls/repo/library/libmbedcrypto.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libmbedcrypto.a
+	cp obj-$(DEB_HOST_MULTIARCH)/third_party/mbedtls/repo/library/libmbedx509.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libmbedx509.a
+	cp obj-$(DEB_HOST_MULTIARCH)/third_party/mbedtls/repo/library/libmbedtls.a debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libmbedtls.a

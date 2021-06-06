@@ -8,13 +8,24 @@ Homepage: https://openthread.io/
 #Vcs-Browser: https://salsa.debian.org/debian/openthread
 #Vcs-Git: https://salsa.debian.org/debian/openthread.git
 
-Package: openthread-dev
+Package: libopenthread-dev
 Section: libdevel
 Architecture: any
 Multi-Arch: same
 Depends: ${misc:Depends}
 Description: development files for openthread
  OpenThread static libraries and headers.
+ It is use for build wpantund and ot-br-posix.
+
+Package: libmbedtls-openthread-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Replaces: libmbedtls-dev
+Conflicts: libmbedtls-dev
+Depends: ${misc:Depends}
+Description: development files for mbedtls openthread
+ MbedTLS static libraries and headers.
  It is use for build wpantund and ot-br-posix.
 
 Package: ot-daemon
